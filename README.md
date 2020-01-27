@@ -26,7 +26,35 @@ tag也属于标识，不push只会留在本地。本例中v0.2不在github，只
 
 ##2020-1-25
 ###banch
->git checkout -b iss3
+>git checkout -b XXX 新建 \
+>git checkout xxx 切换 \
+>git branch -d xxx 删除 \
+>git merge xxx 当前HEAD向（与）xxx处合并
+
+[分支与合并的参考链接](https://git-scm.com/book/zh/v2/Git-%E5%88%86%E6%94%AF-%E5%88%86%E6%94%AF%E7%9A%84%E6%96%B0%E5%BB%BA%E4%B8%8E%E5%90%88%E5%B9%B6 "Git 分支 - 分支的新建与合并")
+- 在合并时，如果当前HEAD为xxx的父快照，则一般会
+>Fast-forward \
+>![Fast-forward](../notepic/Mmergeiss4 Fastforward.png)
+
+一般是自动合并成功的，因为快照层的操作，也不需要再commit
+
+- 合并时 ，若HEAD与xxx快照分叉，且对同一文件有修改，则会冲突
+>CONFLICT  \
+>![CONFLICT]( ../notepic/Mmergeiss3 CONFLICT.png)
+
+显然此时自动合并失败，需要手动调整。可以从git status观察到冲突文件，并在文件中观察到
+> <<<<<<< HEAD:Readme.md
+> 
+> =======
+> 
+> &gt;&gt;&gt;&gt;&gt;&gt;&gt; iss3:Readme.md
+
+你可以手动去修改这些文件，比如去掉你不要的内容 以及 <<<<<<< 、&gt;&gt;&gt;&gt;&gt;&gt;&gt; 、=======
+或者借助工具修改这些文件 \
+但是都意味着需要重新add与commit,以下是修改后并add后的git status
+>Clear 还需要commit哟
+>![Clear]( ../notepic/Mmergeiss3 Clear.png)
+
 
 ### func与 数组/切片
 
@@ -90,7 +118,9 @@ a 在此处的身份很像== 必须显式表达的this \
 所以自然就没有 -> 的必要了。 \
 但需要注意，只有涉及字段（成员）的结构体struct ，可以因上文原因同义。本质上
 >>  *a 与 a 并不同义
-- new 是给 struct  make 是给 map slice chan\
+- 3 new 是给 struct  make 是给 map slice chan\
+
+
 
 
 

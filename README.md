@@ -118,9 +118,41 @@ a 在此处的身份很像== 必须显式表达的this \
 所以自然就没有 -> 的必要了。 \
 但需要注意，只有涉及字段（成员）的结构体struct ，可以因上文原因同义。本质上
 >>  *a 与 a 并不同义
-- 3 new 是给 struct  make 是给 map slice chan\
+- 3 new 是给 struct用  make 是给 map slice chan\
+都得到的是指针（&struct）
+##2020-1-29
+###接口
+#### 定义与赋值
+定义
+> 注意同样会存在  (*a).xxx 自动<==> a.xxx \
+> 以下代码
+>> type LessAddr interface{ \
+>>    Less (b Integer) bool \
+>>    Add (b Integer)  \
+>>}
+>
+>若a为指针则自动生成 func (a *Integer) less (b Integer){ ....a to a\* }
+>即以下合法
+>>type Integer int //这句必须存在
+>> var a Integer =1; 
+>>func Less (b Integer) bool
+>>var b LessAddr = &a;
+>> 此时 Less(b)将自动变为  less (b *)
+####接口查询 类查询
+> if _,ok:= b.(LessAddr) ok{ \
+>b 满足接口吗  当然！
+
+> if _, ok:= c.(*structname) ; ok { \
+ >c 的指向对象是类structname么？ 请注意c本身可能是接口或类。\
+ 
+####类型查询
+>如果是问是不是内置类型 则用 c.(type)
+>switch v.(type) 请和switch配合使用
 
 
-
+### 注意
+- 1 成员方法中，"this" 类型必须是type定义的，不能是接口 否则报错 \
+你不能直接！为内置类型添加方法
+- 2 接口查询时，括弧不可省去 以及结构是返回的第二个参数
 
 

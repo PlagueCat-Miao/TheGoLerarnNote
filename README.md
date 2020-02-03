@@ -151,9 +151,19 @@ a 在此处的身份很像== 必须显式表达的this \
 
 
 ### 注意
-- 1 成员方法中，"this" 类型必须是type定义的，不能是接口 否则报错 \
+- 1 成员方法中，"this" 类型必须是type定义的，且不能是接口 否则报错 \
 你不能直接！为内置类型添加方法
-- 2 接口查询时，括弧不可省去 以及结构是返回的第二个参数
+>type miao struct{ //...  \
+>func (this miao) xxx()(){ //...
+- 2 成员方法的另一种定义方法就是，struct添加函数数据成员（类似函数指针）
+>type miao struct{ \
+>do func ()() \
+>//...  } \
+> func xxx()(){ //... 
+>> 使用方法如下： \
+>> nya:=&miao{do:xxx } \
+>> nya.do()
+- 3 接口查询时，括弧不可省去 以及结构是返回的第二个参数
 
 ##2020-1-30
 ###[test](https://www.cnblogs.com/52php/p/6985411.html)
@@ -161,4 +171,65 @@ a 在此处的身份很像== 必须显式表达的this \
 >- 1、文件名必须以 _test.go 结尾
 >-  2、方法名必须是 Test 开头
 >-  3、方法参数必须是 t *testing.T 或 b *testing.B
+##2020-2-1
+###channel
 
+###select
+select 对case选择是无序的、乱序的、以及如果case两个以上满足条件，就都执行的 ！
+### Once
+全局首次操作，sync.Once once.do保证全局唯一性操作 （就是初始化）
+保证该函数无论开出多少次协程，只会运行一次
+>var once sync.Once 
+>func xxx(){ \
+>once.do(yyy) \
+>}
+###注意
+- fatal error: all goroutines are asleep - deadlock!
+主程序堵塞，且没有其他协程运行（就是没有其他协程能帮（maingoroutine）主协程解堵塞） \
+一种可能是声明channel时没有开缓冲空间，此时只剩（maingoroutine）主协程在运行时，往channel中读、写都会报错 
+>make(chan int);
+
+另一种情况就是在主程序读操作阻塞，且此时又只剩主协程，常见现象为询问channel关闭时，channel没数据也没关闭
+> _,x :=ch 
+
+第一种情况 \
+如果声明channel没有给缓冲空间， 那对此channel写时，因为没有缓存空间只能阻塞，直到有协程能读时才会解除阻塞。
+在此条件下，本协程的程序一旦阻塞（尽管本协程下文有读操作，但是因为堵塞永远也不会等到其执行），只能靠其他同时运行的协程解决。 \
+如果发生这种阻塞且程序只有正在阻塞的main goroutine在运行意味着阻塞永远不会解除，系统会报错
+
+
+第二种情况 \
+close对于一个channel来说也是个写数据，但比较特殊，其确认方法即读数据。在channel有数据时，正常返回数据。在关闭时第二参数正常返回false
+没数据、没关闭、又只剩main goroutine,还是那句话 永远也等不到下文！
+
+
+> fatal error: all goroutines are asleep - deadlock!
+>>解决方法: 
+>>- 1 更改逻辑，添加goroutine 使channel完成一写一读 
+>>- 2 为channel 添加缓存 make(chan int, 1024);
+>> -3 尝试让问题channel在主程序之外执行
+
+- select 的选择是无序的、乱序的、以及如果满足两个以上就都执行的 ！
+##2020-2-2
+###TCP
+测一下go与C++相连状况
+- C++socket编程的数据格式与go不同
+>C++ 的send/recv主要使用 \0来结束字符串的传输（当然要小于参数len） \
+>在go中需要使用\000来代表 C++的 \0
+
+
+>go中 使用io.EOF来判定结束字符串的传输，C++完全无法输出该符号 \
+>因为C++无法给出对方go终端来自报错模块的专有符号， C++发完信息后，go中，虽然会结束一个conn.Read 但是不会
+>触发err == EOF,而是err == nil 代表没发送完。并接收到C++send参数中len长的字符串，在C++中\0后面的部分也会发送过来！！ 
+
+
+- string(result) 遇到\0会停止喵
+- bytes 似乎可以无限长喵 用write来输入
+##2020-2-3
+###HTTP
+- [http](https://www.jianshu.com/p/4e8cdf3b2f88) 注册路由中需要提供url与func的对应
+- [url与http](https://www.cnblogs.com/zhuanzhuruyi/p/6508565.html)  函数handler应该从虚拟目录部分开始吧？
+- [Content-Type post](https://www.cnblogs.com/tugenhua0707/p/8975121.html)
+- [重定向](https://www.cnblogs.com/bq-med/p/8602629.html) 本服务器无法处理该请求 返回3XX 与对应新的location给客户端
+- [cookie](https://www.cnblogs.com/bq-med/p/8603664.html) http验证身份用
+- [TCP+RPC](https://blog.csdn.net/a1158375969/article/details/79516112)

@@ -75,10 +75,16 @@ func (b miao) Less() bool {
 	return b.nya < 4;
 }
 
-type IOstream interface {
-	Input()
-	Output()
+
+type miao2 struct{
+	do func (m int) int
+	num int
 }
+func Add2(m int ) int{
+	m +=  1;
+	return m ;
+}
+
 func main() {
 	var a inter=2;
 	var b LessAddoneer = &a;
@@ -97,6 +103,12 @@ func main() {
 	if _, ok:= c.(*miao) ; ok {
 		fmt.Printf("ok  c 满足LessAddoneer接口\n");
 	}
+
+	//nya:=&miao2{}//虽然编译过了，但是调用的时候就会报错 do数据成员（成员函数） 不存在赋值
+	nya:=&miao2{ do:Add2 }//如此添加函数数据成员（成员函数）\
+	fmt.Printf("%d\n" ,nya.do(23));
+
+
 }
 
 

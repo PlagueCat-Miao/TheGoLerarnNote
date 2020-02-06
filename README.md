@@ -143,7 +143,8 @@ a 在此处的身份很像== 必须显式表达的this \
 >b 满足接口吗  当然！
 
 > if _, ok:= c.(*structname) ; ok { \
- >c 的指向对象是类structname么？ 请注意c本身可能是接口或类。\
+> c 的指向对象是类structname么？ 请注意c本身可能是接口或类。\
+> 返回第一个参数代表一个 转换接口/类型后的 同名
  
 ####类型查询
 >如果是问是不是内置类型 则用 c.(type)
@@ -225,6 +226,8 @@ close对于一个channel来说也是个写数据，但比较特殊，其确认�
 
 - string(result) 遇到\0会停止喵
 - bytes 似乎可以无限长喵 用write来输入
+- [TCP sever实例](https://www.jianshu.com/p/6db6dffb04e5)
+
 ##2020-2-3
 ###HTTP
 - [http](https://www.jianshu.com/p/4e8cdf3b2f88) 注册路由中需要提供url与func的对应
@@ -232,4 +235,44 @@ close对于一个channel来说也是个写数据，但比较特殊，其确认�
 - [Content-Type post](https://www.cnblogs.com/tugenhua0707/p/8975121.html)
 - [重定向](https://www.cnblogs.com/bq-med/p/8602629.html) 本服务器无法处理该请求 返回3XX 与对应新的location给客户端
 - [cookie](https://www.cnblogs.com/bq-med/p/8603664.html) http验证身份用
-- [TCP+RPC](https://blog.csdn.net/a1158375969/article/details/79516112)
+
+##2020-2-6
+###RPC
+
+- [TCP+RPC 应用实例](https://blog.csdn.net/a1158375969/article/details/79516112)
+- 如果在用到God序列化时，参数对象存在[小写](https://blog.csdn.net/GeMarK/article/details/89357013) \
+当然会报错!! \
+在GO中，小写就是私有。小写的方法，小写的参数，大写的struct内小写的参数。都是不能对外访问的，所以报错
+
+>如： \
+>type Ans struct { \
+ 	ans  int \
+ 	ans2 string \
+ } 
+>>2020/02/06 21:03:17 rpc: gob error encoding body: gob: type main.Ans has no exported fields \
+>>2020/02/06 21:03:17 reading body EOF
+
+-结构体内声明切片时，初始化出现报错。链接：[结构体的使用](https://studygolang.com/articles/2724)
+>Missing type in composite literal
+
+数组的声明和赋值要是这个样子的。 \
+ s := []string{“值1”,“值2”}，所以在结构体初始化的时候，数组前面也要加上类型才可。
+###JSON
+JSON 加码与解码
+>b,err :=json.Marshal(s); \
+>err = json.Unmarshal(b,&s)
+
+面对 未知结构体的json码时
+>var r interface{} //用空接口 接收数据 \
+>err = json.Unmarshal(b,&r) \
+>然后一步一筛查其类型与所含有成员 刚接收完数据的r现在是map[string]interface{}
+>statemap ,ok := r.(map[string]interface{}); \
+>//是map 提取成员Authors \
+>author,ok2 :=statemap["Authors"].([]interface{}); \
+>//Authors存在 提取第一个成员[0] \
+>_,ok3 :=author[0].(string) \
+>//是map[string][]string
+
+- 注意不要跳步 author（[]interface{}）是不能和[]string 直接做比较的（判为 不符合）
+> author,ok5 :=statemap["Authors"].([]string);
+>> ok5 ==false 

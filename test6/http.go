@@ -43,7 +43,7 @@ func SeverHttpStart() {
 
 }
 //httpclient
-func main() {
+func httpmain() {
 	go SeverHttpStart();
 	fmt.Println("sever set~")
 	fmt.Println("get test")
